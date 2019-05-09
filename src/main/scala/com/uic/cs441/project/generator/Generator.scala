@@ -1,7 +1,12 @@
 package com.uic.cs441.project.generator
 
-import org.cloudbus.cloudsim.hosts.Host
+import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicy
+import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
+import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
+import org.cloudbus.cloudsim.datacenters._
+import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
 import org.cloudbus.cloudsim.hosts.network.NetworkHost
+import org.cloudbus.cloudsim.network.switches.EdgeSwitch
 import org.cloudbus.cloudsim.provisioners.{PeProvisionerSimple, ResourceProvisionerSimple}
 import org.cloudbus.cloudsim.resources.{Pe, PeSimple}
 import org.cloudbus.cloudsim.schedulers.vm.VmScheduler
@@ -22,17 +27,28 @@ object Generator {
       yield new PeSimple(mips, PeProvisionerSimple)
   }
 
-  def createDataCenter(hostCount: Int,
+  def createDataCenter(simulation: Simulation, vmAllocationPolicy: VmAllocationPolicy, hostCount: Int,
                        ram: Int,
                        bw: Long,
                        storage: Long,
                        pes: Int, mips: Int,
-                       vmScheduler: VmScheduler): List[Host] = {
-    for (_ <- List.range(1, hostCount)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)
+                       vmScheduler: VmScheduler): Datacenter = {
+    new NetworkDatacenter(simulation,
+      (for (_ <- List.range(1, hostCount)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
+      vmAllocationPolicy)
+    //TODO new Datacenter.setSchedulingInterval(2)
   }
 
-  def createDataCenterBroker() = {
+  def createDataCenterNetwork(simulation: CloudSim, datacenter: NetworkDatacenter) = {
+    val edgeSwitch: EdgeSwitch = new EdgeSwitch(simulation, datacenter)
+    datacenter.addSwitch(edgeSwitch)
+    datacenter.getHostList.asScala.foreach(netHost => {
+      edgeSwitch.connectHost(netHost)
+    })
+  }
 
+  def createDataCenterBroker(simulation: CloudSim) = {
+    new DatacenterBrokerSimple(simulation)
   }
 
   def createVM() = {
