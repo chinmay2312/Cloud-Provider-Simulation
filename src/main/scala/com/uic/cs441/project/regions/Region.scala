@@ -1,6 +1,6 @@
 package com.uic.cs441.project.regions
 
-class Region extends Enumeration {
+object Region extends Enumeration {
 
   type Region = Value
 

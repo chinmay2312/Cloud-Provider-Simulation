@@ -6,14 +6,17 @@ import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
 import org.cloudbus.cloudsim.hosts.Host
 import java.util
 
+import com.uic.cs441.project.regions.Region
+import com.uic.cs441.project.regions.Region.Region
+
 class RegionalDatacenter(
-                          region:String,
+                          region:Region,
                           simulation:Simulation,
                           hostList:util.ArrayList[Host],
                           vmAllocationPolicy:VmAllocationPolicy)
   extends NetworkDatacenter(simulation, hostList, vmAllocationPolicy){
 
-
+  println("You selected "+region)
 }
 
 object RegionalDatacenter {
@@ -22,7 +25,9 @@ object RegionalDatacenter {
     val simulation:CloudSim = new CloudSim()
     val hostList = new util.ArrayList[Host]()
     val vmAllocationPolicy:VmAllocationPolicy = new VmAllocationPolicySimple()
-
-    new RegionalDatacenter("Chicago", simulation, hostList, vmAllocationPolicy)
+    val region:String = "Region2"
+    println(s"${Region.values}")
+    //val reg:Region =
+    new RegionalDatacenter(Region.withName(region), simulation, hostList, vmAllocationPolicy)
   }
 }
