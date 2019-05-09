@@ -1,0 +1,5 @@
+package datacenter
+
+class RegionalDatacenter {
+
+}
