@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.vms.{Vm, VmSimple}
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder
 import java.util
 
+import com.typesafe.scalalogging.Logger
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic
 
 /**
@@ -36,6 +37,7 @@ object BasicFirstExample {
 }
 
 class BasicFirstExample() {
+  val logger = Logger("BasicFirstExample")
   /*Enables just some level of log messages.
            Make sure to import org.cloudsimplus.util.Log;*/
   //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -58,6 +60,7 @@ class BasicFirstExample() {
     * Creates a Datacenter and its Hosts.
     */
   private def createDatacenter = {
+    logger.info("test")
     val hostList = new util.ArrayList[Host](BasicFirstExample.HOSTS)
 
     for( i <- 0 until BasicFirstExample.HOSTS) {
