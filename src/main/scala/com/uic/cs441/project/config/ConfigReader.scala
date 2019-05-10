@@ -1,9 +1,9 @@
 package com.uic.cs441.project.config
 
-import java.util
 import java.util.Comparator.{comparingDouble, comparingLong}
-import java.util.{Comparator, List}
+import java.util.{Comparator}
 import java.util.function.Function
+import java.util
 
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
@@ -13,6 +13,8 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.{CloudletScheduler, CloudletSch
 import org.cloudbus.cloudsim.schedulers.vm.{VmScheduler, VmSchedulerSpaceShared, VmSchedulerTimeShared, VmSchedulerTimeSharedOverSubscription}
 import org.cloudbus.cloudsim.utilizationmodels._
 import org.cloudbus.cloudsim.vms.Vm
+import scala.collection.JavaConverters._
+
 
 object ConfigReader {
 
@@ -59,7 +61,7 @@ object ConfigReader {
 
   implicit def cloudletToVmMappingTimeMinimized(cloudlet: Cloudlet): Vm = {
 
-    val execVms: util.List[Vm] = cloudlet.getBroker.getVmExecList
+    val execVms: util.List[Vm] = cloudlet.getBroker.getVmExecList.asInstanceOf[util.List[Vm]]
 
     val sortByFreePesNumber: Comparator[Vm] = comparingLong(getExpectedNumberOfFreeVmPes)
 
@@ -114,12 +116,45 @@ object ConfigReader {
 
       case "UtilizationModelDynamic" => new UtilizationModelDynamic
       case "UtilizationModelFull" => new UtilizationModelFull
-      case "UtilizationModelPlanetLab" => UtilizationModelPlanetLab
       case "UtilizationModelStochastic" => new UtilizationModelStochastic
       case _ => new UtilizationModelFull
     }
   }
 
+  implicit def getHostValues : HostValues = {
 
+    logger.info("Picked up host values " + config.getConfig("hostValues").toString)
+    val hostValues = config.getConfig("hostValues")
+
+    HostValues(hostValues.getInt("ram"),hostValues.getLong("bw"), hostValues.getLong("storage"),
+      hostValues.getInt("noOfPes"), hostValues.getInt("mips"))
+
+  }
+
+  implicit def getDataCenterList : List[DataCenter] = {
+
+    config.getConfigList("regions").asScala.toList
+      .flatMap(region => region.getConfigList("dcList").asScala.toList
+        .map(dc => DataCenter(dc.getInt("noOfHosts"))))
+
+  }
+
+  implicit def getVmValues : VmValues = {
+
+    logger.info("Picked up VM values " + config.getConfig("vmValues").toString)
+
+    val vmValues = config.getConfig("vmValues")
+
+    VmValues(vmValues.getInt("noOfVms"), vmValues.getInt("maxRam"), vmValues.getLong("maxBw"),
+      vmValues.getLong("maxStorage"), vmValues.getInt("maxNoOfPes"), vmValues.getInt("maxMips"))
+
+
+  }
 }
 
+
+case class HostValues(ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)
+
+case class DataCenter(noOfHosts : Int)
+
+case class VmValues(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)

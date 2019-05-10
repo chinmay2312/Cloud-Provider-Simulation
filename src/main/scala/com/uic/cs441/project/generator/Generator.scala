@@ -26,9 +26,16 @@ object Generator {
       yield createHost(ram, bw, storage, pes, mips, vmScheduler)
   }
 
-  def generateVmList(countOfVm: Int, id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+  implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
     for (_ <- List.range(1, countOfVm))
-      yield createVM(vmIdCount = vmIdCount + 1, ram, bw, storage, pes, mips, cloudletScheduler)
+      yield createVM(getVmIdCount(), ram, bw, storage, pes, mips, cloudletScheduler)
+
+  }
+
+  def getVmIdCount() : Int = {
+
+    vmIdCount += 1
+    vmIdCount
   }
 
   def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
@@ -49,10 +56,10 @@ object Generator {
 
   def createPes(pes: Int, mips: Int): List[Pe] = {
     for (_ <- List.range(1, pes))
-      yield new PeSimple(mips, PeProvisionerSimple)
+      yield new PeSimple(mips, new PeProvisionerSimple)
   }
 
-  def createDataCenter(simulation: Simulation, vmAllocationPolicy: VmAllocationPolicy, hostCount: Int,
+  implicit def createDataCenter(simulation: Simulation, vmAllocationPolicy: VmAllocationPolicy, hostCount: Int,
                        ram: Int,
                        bw: Long,
                        storage: Long,
@@ -64,19 +71,19 @@ object Generator {
     //TODO new Datacenter.setSchedulingInterval(2)
   }
 
-  def createDataCenterNetwork(simulation: CloudSim, datacenter: NetworkDatacenter) = {
+  implicit def createDataCenterNetwork(simulation: CloudSim, datacenter: NetworkDatacenter) = {
     val edgeSwitch: EdgeSwitch = new EdgeSwitch(simulation, datacenter)
     datacenter.addSwitch(edgeSwitch)
-    datacenter.getHostList.asScala.foreach(netHost => {
+    datacenter.getHostList.asInstanceOf[java.util.List[NetworkHost]].asScala.foreach(netHost => {
       edgeSwitch.connectHost(netHost)
     })
   }
 
-  def createDataCenterBroker(simulation: CloudSim) = {
+  implicit def createDataCenterBroker(simulation: CloudSim) = {
     new DatacenterBrokerSimple(simulation)
   }
 
-  def createVM(id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+  implicit def createVM(id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
     val vm: NetworkVm = new NetworkVm(id, mips, pes)
     vm.setRam(ram)
       .setBw(bw)
@@ -84,7 +91,7 @@ object Generator {
       .setCloudletScheduler(cloudletScheduler)
   }
 
-  def createCloudlet(pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
+  implicit def createCloudlet(pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
     new NetworkCloudlet(1, pes)
       .setMemory(ram)
       .setFileSize(fileSize)
@@ -93,8 +100,8 @@ object Generator {
     //TODO remember to set VM at the broker
   }
 
-  //TODO Vms are already assigned to the cloudlets
-  def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
+    //TODO Vms are already assigned to the cloudlets
+  implicit def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
       if (i < (cloudletsSize / 2)) {
@@ -107,7 +114,7 @@ object Generator {
     }
   }
 
-  def addExecutionTasks(cloudlet: NetworkCloudlet, id: Int, taskLength: Int, taskRam: Int) = {
+  implicit def addExecutionTasks(cloudlet: NetworkCloudlet, id: Int, taskLength: Int, taskRam: Int) = {
     val task: CloudletTask = new CloudletExecutionTask(id, taskLength)
     task.setMemory(taskRam)
     cloudlet.addTask(task)
