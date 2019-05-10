@@ -2,7 +2,7 @@ package com.uic.cs441.project.generator
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicy
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
-import org.cloudbus.cloudsim.cloudlets.network.{CloudletExecutionTask, CloudletTask, NetworkCloudlet}
+import org.cloudbus.cloudsim.cloudlets.network.{CloudletExecutionTask, CloudletSendTask, CloudletTask, NetworkCloudlet}
 import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
 import org.cloudbus.cloudsim.datacenters._
 import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
@@ -75,10 +75,11 @@ object Generator {
   def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
-      addExecutionTasks(cloudlet, i, taskLength, taskRam)
       if (i < (cloudletsSize / 2)) {
-        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i))
-        addReceiveTasks(networkCloudlets(cloudletsSize - i), cloudlet)
+        addExecutionTasks(cloudlet, i, taskLength, taskRam)
+        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1))
+        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet)
+        addExecutionTasks(networkCloudlets(cloudletsSize - i - 1), i, taskLength, taskRam)
       }
     }
     }
@@ -91,7 +92,7 @@ object Generator {
   }
 
   def addSendTasks(src: NetworkCloudlet, dest: NetworkCloudlet) = {
-
+    new CloudletSendTask(src.getTasks().size())
   }
 
   def addReceiveTasks(dest: NetworkCloudlet, cloudlet: NetworkCloudlet) = {
