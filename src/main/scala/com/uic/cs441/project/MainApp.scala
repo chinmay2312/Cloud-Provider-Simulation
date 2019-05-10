@@ -91,3 +91,5 @@ object MainApp {
 
 
 }
+
+class MainApp{}
