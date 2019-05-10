@@ -1,6 +1,7 @@
 package com.uic.cs441.project
+import cloudsimplus.extension.broker.RegionalDatacenterBroker
 import com.typesafe.scalalogging.Logger
-import com.uic.cs441.project.config.DataCenter
+import com.uic.cs441.project.config.ConfigDataCenter
 import config.ConfigReader._
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.core.CloudSim
@@ -29,7 +30,7 @@ object MainApp {
 
     logger.info("Creating broker")
 
-    val broker  = new DatacenterBrokerSimple(cloudsim)
+    val broker:DatacenterBrokerSimple = new RegionalDatacenterBroker(cloudsim)
 
     logger.info("Creating virtual machines")
 
@@ -37,14 +38,17 @@ object MainApp {
 
     broker.submitVmList(vmList)
 
+//    broker.getDatacenterList()
+
     logger.info("Creating cloudlets")
 
     val cloudletList : java.util.List[NetworkCloudlet] = createCloudlets()
 
-    broker.submitCloudletList(cloudletList)
+//    broker.submitCloudletList(cloudletList)
 
     logger.info("Stopping simulation")
 
+    cloudsim.start()
 
 
 
@@ -52,13 +56,13 @@ object MainApp {
 
   def createDataCenters(cloudsim: CloudSim) : List[Datacenter] = {
 
-    val dcList : List[DataCenter] = getDataCenterList
+    val dcList : List[ConfigDataCenter] = getDataCenterList
 
     val hostValues = getHostValues
 
     dcList.map(dc => {
 
-      createDataCenter(cloudsim, getVMAllocationPolicy, dc.noOfHosts, hostValues.ram,
+      createDataCenter(dc.region,cloudsim, getVMAllocationPolicy, dc.noOfHosts, hostValues.ram,
         hostValues.bw, hostValues.storage, hostValues.pes, hostValues.mips,
         getVmScheduler)
 

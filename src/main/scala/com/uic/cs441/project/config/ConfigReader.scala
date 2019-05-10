@@ -1,15 +1,16 @@
 package com.uic.cs441.project.config
 
-import java.util.Comparator.{comparingDouble, comparingLong}
-import java.util.Comparator
-import java.util.function.Function
 import java.util
+import java.util.Comparator
+import java.util.Comparator.{comparingDouble, comparingLong}
+import java.util.function.Function
 
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
+import com.uic.cs441.project.regions.Region
+import com.uic.cs441.project.regions.Region.Region
 import org.cloudbus.cloudsim.allocationpolicies.{VmAllocationPolicy, VmAllocationPolicyBestFit, VmAllocationPolicyFirstFit, VmAllocationPolicySimple}
-import org.cloudbus.cloudsim.cloudlets.network.NetworkCloudlet
-import org.cloudbus.cloudsim.cloudlets.{Cloudlet, CloudletNull, CloudletSimple}
+import org.cloudbus.cloudsim.cloudlets.Cloudlet
 import org.cloudbus.cloudsim.schedulers.cloudlet.{CloudletScheduler, CloudletSchedulerCompletelyFair, CloudletSchedulerSpaceShared, CloudletSchedulerTimeShared}
 import org.cloudbus.cloudsim.schedulers.vm.{VmScheduler, VmSchedulerSpaceShared, VmSchedulerTimeShared, VmSchedulerTimeSharedOverSubscription}
 import org.cloudbus.cloudsim.utilizationmodels._
@@ -25,7 +26,7 @@ object ConfigReader {
   //Type safe config object
   val config: Config = ConfigFactory.load()
 
-  implicit def getVMAllocationPolicy : VmAllocationPolicy = {
+  implicit def getVMAllocationPolicy: VmAllocationPolicy = {
 
     logger.info("Picked up VM Allocation policy "
       + config.getString("policies.vmAllocationPolicy"))
@@ -41,7 +42,7 @@ object ConfigReader {
     }
   }
 
-  implicit def getVmToCloudletMappingPolicy(cloudlet: Cloudlet) : Function[Cloudlet, Vm] = {
+  implicit def getVmToCloudletMappingPolicy(cloudlet: Cloudlet): Function[Cloudlet, Vm] = {
 
     config.getString("policies.vmToCloudletMapping") match {
 
@@ -49,10 +50,10 @@ object ConfigReader {
     }
   }
 
-  implicit def getExpectedCloudletCompletionTime(cloudlet: Cloudlet, vm: Vm) : Double
+  implicit def getExpectedCloudletCompletionTime(cloudlet: Cloudlet, vm: Vm): Double
   = cloudlet.getLength / vm.getMips
 
-  implicit def getExpectedNumberOfFreeVmPes(vm : Vm): Long = {
+  implicit def getExpectedNumberOfFreeVmPes(vm: Vm): Long = {
     val totalPesForCloudletsOfVm = vm.getBroker.getCloudletCreatedList
       .stream.filter(c => c.getVm == vm).mapToLong(c => c.getNumberOfPes).sum
 
@@ -82,7 +83,7 @@ object ConfigReader {
 
   implicit def getCloudletSchedulerPolicyString = config.getString("policies.cloudletSchedulerPolicy")
 
-  implicit def getCloudletSchedulerPolicy : CloudletScheduler = {
+  implicit def getCloudletSchedulerPolicy: CloudletScheduler = {
 
     config.getString("policies.cloudletSchedulerPolicy") match {
 
@@ -93,10 +94,10 @@ object ConfigReader {
     }
   }
 
-  implicit def getVmScheduler : VmScheduler = {
+  implicit def getVmScheduler: VmScheduler = {
 
     logger.info("Picked up cloudlet VM Scheduler "
-     + config.getString("policies.vmSchedulerPolicy"))
+      + config.getString("policies.vmSchedulerPolicy"))
 
     config.getString("policies.vmSchedulerPolicy") match {
 
@@ -108,7 +109,7 @@ object ConfigReader {
     }
   }
 
-  implicit def getUtilizationModel : UtilizationModel = {
+  implicit def getUtilizationModel: UtilizationModel = {
 
     config.getString("policies.utilizationModel") match {
 
@@ -119,25 +120,41 @@ object ConfigReader {
     }
   }
 
-  implicit def getHostValues : HostValues = {
+  implicit def getHostValues: HostValues = {
 
     logger.info("Picked up host values " + config.getConfig("hostValues").toString)
     val hostValues = config.getConfig("hostValues")
 
-    HostValues(hostValues.getInt("ram"),hostValues.getLong("bw"), hostValues.getLong("storage"),
+    HostValues(hostValues.getInt("ram"), hostValues.getLong("bw"), hostValues.getLong("storage"),
       hostValues.getInt("noOfPes"), hostValues.getInt("mips"))
 
   }
 
-  implicit def getDataCenterList : List[DataCenter] = {
+  implicit def getDataCenterList: List[ConfigDataCenter] = {
 
     config.getConfigList("regions").asScala.toList
       .flatMap(region => region.getConfigList("dcList").asScala.toList
-        .map(dc => DataCenter(dc.getInt("noOfHosts"))))
+        .map(dc => ConfigDataCenter(dc.getInt("noOfHosts"),
+          mapToRegion(region.getString("name"))))
+
+
+      )
 
   }
 
-  implicit def getVmValues : VmValues = {
+  def mapToRegion(region: String): Region = {
+    region match {
+      case "Region1" => Region.REGION1
+      case "Region2" => Region.REGION2
+      case "Region3" => Region.REGION3
+      case "Region4" => Region.REGION4
+      case "Region5" => Region.REGION5
+      case "Region6" => Region.REGION6
+      case "Region7" => Region.REGION7
+    }
+  }
+
+  implicit def getVmValues: VmValues = {
 
     logger.info("Picked up VM values " + config.getConfig("vmValues").toString)
 
@@ -149,7 +166,7 @@ object ConfigReader {
 
   }
 
-  implicit def getCloudletValues : CloudletValues = {
+  implicit def getCloudletValues: CloudletValues = {
 
     logger.info("Picked up Cloudlet values " + config.getConfig("cloudletValues").toString)
 
@@ -160,7 +177,7 @@ object ConfigReader {
       cloudletValues.getInt("maxOutputSize"))
   }
 
-  implicit def getTaskValues : TaskValues = {
+  implicit def getTaskValues: TaskValues = {
 
     logger.info("Picked up VM values " + config.getConfig("taskValues").toString)
 
@@ -175,10 +192,10 @@ object ConfigReader {
 
 case class HostValues(ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)
 
-case class DataCenter(noOfHosts : Int)
+case class ConfigDataCenter(noOfHosts: Int, region: Region)
 
 case class VmValues(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)
 
-case class CloudletValues(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int)
+case class CloudletValues(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int)
 
 case class TaskValues(noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, taskLength: Int, taskRam: Int)

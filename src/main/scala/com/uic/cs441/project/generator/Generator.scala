@@ -1,5 +1,11 @@
 package com.uic.cs441.project.generator
 
+import cloudsimplus.extension.cloudlet.RegionalCloudlet
+import cloudsimplus.extension.datacenter.RegionalDatacenter
+import cloudsimplus.extension.vm.RegionalVm
+import com.uic.cs441.project.config.ConfigReader._
+import com.uic.cs441.project.regions.Region
+import com.uic.cs441.project.regions.Region.Region
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicy
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.cloudlets.network._
@@ -13,14 +19,12 @@ import org.cloudbus.cloudsim.provisioners.{PeProvisionerSimple, ResourceProvisio
 import org.cloudbus.cloudsim.resources.{Pe, PeSimple}
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler
 import org.cloudbus.cloudsim.schedulers.vm.VmScheduler
-import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull
-import org.cloudbus.cloudsim.vms.network.NetworkVm
-import com.uic.cs441.project.config.ConfigReader._
 
 import scala.collection.JavaConverters._
 
 object Generator {
   var vmIdCount: Int = 0
+  var cloudletCount: Int = 0
 
   def generateHostList(countOfHost: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): List[Host] = {
     for (_ <- List.range(1, countOfHost))
@@ -29,19 +33,23 @@ object Generator {
 
   implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int) = {
     for (_ <- List.range(1, countOfVm))
-      yield createVM(getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
+      yield createVM(Region.getRandomRegion(), getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
 
   }
 
-  def getVmIdCount() : Int = {
-
+  def getVmIdCount(): Int = {
     vmIdCount += 1
     vmIdCount
   }
 
-  def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int) = {
+  def getCloudletCount(): Int = {
+    cloudletCount += 1
+    cloudletCount
+  }
+
+  def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int) = {
     for (_ <- List.range(1, countOfCloudlets))
-      yield createCloudlet(pes, ram, fileSize, length, outputFileSize)
+      yield createCloudlet(Region.getRandomRegion(), pes, ram, fileSize, length, outputFileSize)
   }
 
   def generateAndAddTasksToCloudlets(numOfTasksForEachCloudlet: Int) = {
@@ -60,13 +68,13 @@ object Generator {
       yield new PeSimple(mips, new PeProvisionerSimple)
   }
 
-  implicit def createDataCenter(simulation: Simulation, vmAllocationPolicy: VmAllocationPolicy, hostCount: Int,
-                       ram: Int,
-                       bw: Long,
-                       storage: Long,
-                       pes: Int, mips: Int,
-                       vmScheduler: VmScheduler): Datacenter = {
-    new NetworkDatacenter(simulation,
+  implicit def createDataCenter(region: Region, simulation: Simulation, vmAllocationPolicy: VmAllocationPolicy, hostCount: Int,
+                                ram: Int,
+                                bw: Long,
+                                storage: Long,
+                                pes: Int, mips: Int,
+                                vmScheduler: VmScheduler): Datacenter = {
+    new RegionalDatacenter(region, simulation,
       (for (_ <- List.range(1, hostCount)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
       vmAllocationPolicy)
     //TODO new Datacenter.setSchedulingInterval(2)
@@ -84,16 +92,16 @@ object Generator {
     new DatacenterBrokerSimple(simulation)
   }
 
-  implicit def createVM(id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
-    val vm: NetworkVm = new NetworkVm(id, mips, pes)
+  implicit def createVM(region: Region, id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+    val vm: RegionalVm = new RegionalVm(id, mips, pes, region)
     vm.setRam(ram)
       .setBw(bw)
       .setSize(storage)
       .setCloudletScheduler(cloudletScheduler)
   }
 
-  implicit def createCloudlet(pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int) : NetworkCloudlet = {
-    val cloudlet = new NetworkCloudlet(length, pes)
+  implicit def createCloudlet(region: Region, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int): NetworkCloudlet = {
+    val cloudlet = new RegionalCloudlet(length, pes, getCloudletCount(), region)
     cloudlet.setMemory(ram)
     cloudlet.setFileSize(fileSize)
     cloudlet.setOutputSize(outputFileSize)
@@ -102,7 +110,7 @@ object Generator {
     //TODO remember to set VM at the broker
   }
 
-    //TODO Vms are already assigned to the cloudlets
+  //TODO Vms are already assigned to the cloudlets
   implicit def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {

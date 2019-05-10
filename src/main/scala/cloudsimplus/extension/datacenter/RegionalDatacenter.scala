@@ -12,7 +12,7 @@ import com.uic.cs441.project.regions.Region.Region
 class RegionalDatacenter(
                           region:Region,
                           simulation:Simulation,
-                          hostList:util.ArrayList[Host],
+                          hostList:util.List[Host],
                           vmAllocationPolicy:VmAllocationPolicy)
   extends NetworkDatacenter(simulation, hostList, vmAllocationPolicy){
 
