@@ -1,4 +1,4 @@
-package datacenter
+package cloudsimplus.extension.datacenter
 
 import org.cloudbus.cloudsim.allocationpolicies.{VmAllocationPolicy, VmAllocationPolicySimple}
 import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
@@ -16,6 +16,7 @@ class RegionalDatacenter(
                           vmAllocationPolicy:VmAllocationPolicy)
   extends NetworkDatacenter(simulation, hostList, vmAllocationPolicy){
 
+  val reg = region
   println("You selected "+region)
 }
 
@@ -26,8 +27,7 @@ object RegionalDatacenter {
     val hostList = new util.ArrayList[Host]()
     val vmAllocationPolicy:VmAllocationPolicy = new VmAllocationPolicySimple()
     val region:String = "Region2"
-    println(s"${Region.values}")
-    //val reg:Region =
+    //println(s"${Region.values}")
     new RegionalDatacenter(Region.withName(region), simulation, hostList, vmAllocationPolicy)
   }
 }
