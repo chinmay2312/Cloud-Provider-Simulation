@@ -2,7 +2,7 @@ package com.uic.cs441.project.generator
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicy
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
-import org.cloudbus.cloudsim.cloudlets.network.{CloudletExecutionTask, CloudletSendTask, CloudletTask, NetworkCloudlet}
+import org.cloudbus.cloudsim.cloudlets.network._
 import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
 import org.cloudbus.cloudsim.datacenters._
 import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
@@ -93,14 +93,14 @@ object Generator {
     //TODO remember to set VM at the broker
   }
 
-  //TODO Vms are assigned to the cloudlets
-  def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
+  //TODO Vms are already assigned to the cloudlets
+  def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
       if (i < (cloudletsSize / 2)) {
         addExecutionTasks(cloudlet, i, taskLength, taskRam)
-        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1))
-        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet)
+        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1), taskRam, numOfPackets, packetDataLengthInBytes)
+        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet, taskRam, numOfPackets)
         addExecutionTasks(networkCloudlets(cloudletsSize - i - 1), i, taskLength, taskRam)
       }
     }
@@ -113,12 +113,19 @@ object Generator {
     cloudlet.addTask(task)
   }
 
-  def addSendTasks(src: NetworkCloudlet, dest: NetworkCloudlet) = {
-    new CloudletSendTask(src.getTasks().size())
+  def addSendTasks(src: NetworkCloudlet, dest: NetworkCloudlet, taskRam: Int, numOfPackets: Int, packetDataLengthInBytes: Int) = {
+    val task: CloudletSendTask = new CloudletSendTask(src.getTasks.size())
+    task.setMemory(taskRam)
+    src.addTask(task)
+    for (_ <- List.range(1, numOfPackets))
+      yield task.addPacket(dest, packetDataLengthInBytes)
   }
 
-  def addReceiveTasks(dest: NetworkCloudlet, cloudlet: NetworkCloudlet) = {
-
+  def addReceiveTasks(dest: NetworkCloudlet, cloudlet: NetworkCloudlet, taskRam: Int, numOfPackets: Int) = {
+    val task: CloudletReceiveTask = new CloudletReceiveTask(cloudlet.getTasks().size(), cloudlet.getVm())
+    task.setMemory(taskRam)
+    task.setExpectedPacketsToReceive(numOfPackets)
+    dest.addTask(task)
   }
 
   //  def createNetworkTopology() = {
