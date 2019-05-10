@@ -6,6 +6,7 @@ import org.cloudbus.cloudsim.cloudlets.network.{CloudletExecutionTask, CloudletS
 import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
 import org.cloudbus.cloudsim.datacenters._
 import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
+import org.cloudbus.cloudsim.hosts.Host
 import org.cloudbus.cloudsim.hosts.network.NetworkHost
 import org.cloudbus.cloudsim.network.switches.EdgeSwitch
 import org.cloudbus.cloudsim.provisioners.{PeProvisionerSimple, ResourceProvisionerSimple}
@@ -18,8 +19,28 @@ import org.cloudbus.cloudsim.vms.network.NetworkVm
 import scala.collection.JavaConverters._
 
 object Generator {
+  var vmIdCount: Int = 0
 
-  def createHost(ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler) = {
+  def generateHostList(countOfHost: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): List[Host] = {
+    for (_ <- List.range(1, countOfHost))
+      yield createHost(ram, bw, storage, pes, mips, vmScheduler)
+  }
+
+  def generateVmList(countOfVm: Int, id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+    for (_ <- List.range(1, countOfVm))
+      yield createVM(vmIdCount = vmIdCount + 1, ram, bw, storage, pes, mips, cloudletScheduler)
+  }
+
+  def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
+    for (_ <- List.range(1, countOfCloudlets))
+      yield createCloudlet(pes, ram, fileSize, outputFileSize)
+  }
+
+  def generateAndAddTasksToCloudlets(numOfTasksForEachCloudlet: Int) = {
+
+  }
+
+  def createHost(ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): Host = {
     new NetworkHost(ram, bw, storage, createPes(pes, mips).asJava)
       .setRamProvisioner(new ResourceProvisionerSimple())
       .setBwProvisioner(new ResourceProvisionerSimple())
@@ -72,6 +93,7 @@ object Generator {
     //TODO remember to set VM at the broker
   }
 
+  //TODO Vms are assigned to the cloudlets
   def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
@@ -99,7 +121,7 @@ object Generator {
 
   }
 
-  def createNetworkTopology() = {
-
-  }
+  //  def createNetworkTopology() = {
+  //
+  //  }
 }
