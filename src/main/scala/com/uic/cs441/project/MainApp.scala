@@ -62,7 +62,7 @@ object MainApp {
     val vmValues = getVmValues
 
     generateVmList(vmValues.countOfVm, vmValues.ram, vmValues.bw, vmValues.storage, vmValues.pes,
-      vmValues.mips, getCloudletSchedulerPolicy).asJava
+      vmValues.mips).asJava
 
   }
 

@@ -78,10 +78,9 @@ object ConfigReader {
 
   }
 
-  implicit def getCloudletSchedulerPolicy : CloudletScheduler = {
+  implicit def getCloudletSchedulerPolicyString = config.getString("policies.cloudletSchedulerPolicy")
 
-    logger.info("Picked up cloudlet scheduler policy "
-      + config.getString("policies.cloudletSchedulerPolicy"))
+  implicit def getCloudletSchedulerPolicy : CloudletScheduler = {
 
     config.getString("policies.cloudletSchedulerPolicy") match {
 

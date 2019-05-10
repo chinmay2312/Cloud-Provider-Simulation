@@ -15,6 +15,7 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler
 import org.cloudbus.cloudsim.schedulers.vm.VmScheduler
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull
 import org.cloudbus.cloudsim.vms.network.NetworkVm
+import com.uic.cs441.project.config.ConfigReader._
 
 import scala.collection.JavaConverters._
 
@@ -26,9 +27,9 @@ object Generator {
       yield createHost(ram, bw, storage, pes, mips, vmScheduler)
   }
 
-  implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+  implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int) = {
     for (_ <- List.range(1, countOfVm))
-      yield createVM(getVmIdCount(), ram, bw, storage, pes, mips, cloudletScheduler)
+      yield createVM(getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
 
   }
 
