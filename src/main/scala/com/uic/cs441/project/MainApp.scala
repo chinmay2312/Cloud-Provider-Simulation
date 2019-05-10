@@ -6,6 +6,8 @@ import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.datacenters.Datacenter
 import generator.Generator._
+import org.cloudbus.cloudsim.cloudlets.Cloudlet
+import org.cloudbus.cloudsim.cloudlets.network.NetworkCloudlet
 import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler
 import org.cloudbus.cloudsim.vms.Vm
 
@@ -34,6 +36,12 @@ object MainApp {
     val vmList : java.util.List[Vm] = createVms()
 
     broker.submitVmList(vmList)
+
+    logger.info("Creating cloudlets")
+
+    val cloudletList : java.util.List[NetworkCloudlet] = createCloudlets()
+
+    broker.submitCloudletList(cloudletList)
 
     logger.info("Stopping simulation")
 
@@ -64,6 +72,21 @@ object MainApp {
     generateVmList(vmValues.countOfVm, vmValues.ram, vmValues.bw, vmValues.storage, vmValues.pes,
       vmValues.mips).asJava
 
+  }
+
+  def createCloudlets() : java.util.List[NetworkCloudlet] = {
+
+    val cloudletValues = getCloudletValues
+
+    val taskValues = getTaskValues
+
+    val cloudlets : List[NetworkCloudlet] = generateCloudlets(cloudletValues.countOfCloudlets, cloudletValues.pes, cloudletValues.ram,
+      cloudletValues.fileSize, cloudletValues.length, cloudletValues.outputFileSize)
+
+    createTasksForCloudlets(cloudlets, taskValues.noOfTasks, taskValues.noOfTasks,
+      taskValues.packetDataLengthInBytes, taskValues.taskLength, taskValues.taskRam)
+
+    cloudlets.asJava
   }
 
 

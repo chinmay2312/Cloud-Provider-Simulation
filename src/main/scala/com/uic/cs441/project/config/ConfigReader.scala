@@ -1,18 +1,20 @@
 package com.uic.cs441.project.config
 
 import java.util.Comparator.{comparingDouble, comparingLong}
-import java.util.{Comparator}
+import java.util.Comparator
 import java.util.function.Function
 import java.util
 
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
 import org.cloudbus.cloudsim.allocationpolicies.{VmAllocationPolicy, VmAllocationPolicyBestFit, VmAllocationPolicyFirstFit, VmAllocationPolicySimple}
+import org.cloudbus.cloudsim.cloudlets.network.NetworkCloudlet
 import org.cloudbus.cloudsim.cloudlets.{Cloudlet, CloudletNull, CloudletSimple}
 import org.cloudbus.cloudsim.schedulers.cloudlet.{CloudletScheduler, CloudletSchedulerCompletelyFair, CloudletSchedulerSpaceShared, CloudletSchedulerTimeShared}
 import org.cloudbus.cloudsim.schedulers.vm.{VmScheduler, VmSchedulerSpaceShared, VmSchedulerTimeShared, VmSchedulerTimeSharedOverSubscription}
 import org.cloudbus.cloudsim.utilizationmodels._
 import org.cloudbus.cloudsim.vms.Vm
+
 import scala.collection.JavaConverters._
 
 
@@ -108,9 +110,6 @@ object ConfigReader {
 
   implicit def getUtilizationModel : UtilizationModel = {
 
-    logger.info("Picked up utilization model "
-      + config.getString("policies.utilizationModel"))
-
     config.getString("policies.utilizationModel") match {
 
       case "UtilizationModelDynamic" => new UtilizationModelDynamic
@@ -149,6 +148,28 @@ object ConfigReader {
 
 
   }
+
+  implicit def getCloudletValues : CloudletValues = {
+
+    logger.info("Picked up Cloudlet values " + config.getConfig("cloudletValues").toString)
+
+    val cloudletValues = config.getConfig("cloudletValues")
+
+    CloudletValues(cloudletValues.getInt("noOfCloudlets"), cloudletValues.getInt("maxNoOfPes"),
+      cloudletValues.getInt("maxRam"), cloudletValues.getInt("maxFileSize"), cloudletValues.getInt("maxlength"),
+      cloudletValues.getInt("maxOutputSize"))
+  }
+
+  implicit def getTaskValues : TaskValues = {
+
+    logger.info("Picked up VM values " + config.getConfig("taskValues").toString)
+
+    val taskValues = config.getConfig("taskValues")
+
+    TaskValues(taskValues.getInt("noOfTasks"), taskValues.getInt("noOfPackets"),
+      taskValues.getInt("packetDataLengthInBytes"), taskValues.getInt("taskLength"),
+      taskValues.getInt("taskRam"))
+  }
 }
 
 
@@ -157,3 +178,7 @@ case class HostValues(ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)
 case class DataCenter(noOfHosts : Int)
 
 case class VmValues(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int)
+
+case class CloudletValues(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int)
+
+case class TaskValues(noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, taskLength: Int, taskRam: Int)

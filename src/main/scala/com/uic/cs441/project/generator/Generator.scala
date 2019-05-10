@@ -39,9 +39,9 @@ object Generator {
     vmIdCount
   }
 
-  def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
+  def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int) = {
     for (_ <- List.range(1, countOfCloudlets))
-      yield createCloudlet(pes, ram, fileSize, outputFileSize)
+      yield createCloudlet(pes, ram, fileSize, length, outputFileSize)
   }
 
   def generateAndAddTasksToCloudlets(numOfTasksForEachCloudlet: Int) = {
@@ -92,17 +92,18 @@ object Generator {
       .setCloudletScheduler(cloudletScheduler)
   }
 
-  implicit def createCloudlet(pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
-    new NetworkCloudlet(1, pes)
-      .setMemory(ram)
-      .setFileSize(fileSize)
-      .setOutputSize(outputFileSize)
-      .setUtilizationModel(new UtilizationModelFull)
+  implicit def createCloudlet(pes: Int, ram: Int, fileSize: Int, length : Int, outputFileSize: Int) : NetworkCloudlet = {
+    val cloudlet = new NetworkCloudlet(length, pes)
+    cloudlet.setMemory(ram)
+    cloudlet.setFileSize(fileSize)
+    cloudlet.setOutputSize(outputFileSize)
+    cloudlet.setUtilizationModel(getUtilizationModel)
+    cloudlet
     //TODO remember to set VM at the broker
   }
 
     //TODO Vms are already assigned to the cloudlets
-  implicit def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
+  implicit def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, numOfPackets: Int, packetDataLengthInBytes: Int, taskLength: Int, taskRam: Int) = {
     val cloudletsSize: Int = networkCloudlets.size
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
       if (i < (cloudletsSize / 2)) {
