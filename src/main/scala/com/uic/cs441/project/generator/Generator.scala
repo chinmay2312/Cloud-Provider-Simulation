@@ -2,6 +2,7 @@ package com.uic.cs441.project.generator
 
 import org.cloudbus.cloudsim.allocationpolicies.VmAllocationPolicy
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
+import org.cloudbus.cloudsim.cloudlets.network.{CloudletExecutionTask, CloudletTask, NetworkCloudlet}
 import org.cloudbus.cloudsim.core.{CloudSim, Simulation}
 import org.cloudbus.cloudsim.datacenters._
 import org.cloudbus.cloudsim.datacenters.network.NetworkDatacenter
@@ -9,7 +10,10 @@ import org.cloudbus.cloudsim.hosts.network.NetworkHost
 import org.cloudbus.cloudsim.network.switches.EdgeSwitch
 import org.cloudbus.cloudsim.provisioners.{PeProvisionerSimple, ResourceProvisionerSimple}
 import org.cloudbus.cloudsim.resources.{Pe, PeSimple}
+import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler
 import org.cloudbus.cloudsim.schedulers.vm.VmScheduler
+import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelFull
+import org.cloudbus.cloudsim.vms.network.NetworkVm
 
 import scala.collection.JavaConverters._
 
@@ -51,15 +55,50 @@ object Generator {
     new DatacenterBrokerSimple(simulation)
   }
 
-  def createVM() = {
+  def createVM(id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
+    val vm: NetworkVm = new NetworkVm(id, mips, pes)
+    vm.setRam(ram)
+      .setBw(bw)
+      .setSize(storage)
+      .setCloudletScheduler(cloudletScheduler)
+  }
+
+  def createCloudlet(pes: Int, ram: Int, fileSize: Int, outputFileSize: Int) = {
+    new NetworkCloudlet(1, pes)
+      .setMemory(ram)
+      .setFileSize(fileSize)
+      .setOutputSize(outputFileSize)
+      .setUtilizationModel(new UtilizationModelFull)
+    //TODO remember to set VM at the broker
+  }
+
+  def createTasksForCloudlets(networkCloudlets: List[NetworkCloudlet], noOfTasks: Int, percentageOfSendTasks: Int, taskLength: Int, taskRam: Int) = {
+    val cloudletsSize: Int = networkCloudlets.size
+    networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
+      addExecutionTasks(cloudlet, i, taskLength, taskRam)
+      if (i < (cloudletsSize / 2)) {
+        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i))
+        addReceiveTasks(networkCloudlets(cloudletsSize - i), cloudlet)
+      }
+    }
+    }
+  }
+
+  def addExecutionTasks(cloudlet: NetworkCloudlet, id: Int, taskLength: Int, taskRam: Int) = {
+    val task: CloudletTask = new CloudletExecutionTask(id, taskLength)
+    task.setMemory(taskRam)
+    cloudlet.addTask(task)
+  }
+
+  def addSendTasks(src: NetworkCloudlet, dest: NetworkCloudlet) = {
 
   }
 
-  def createCloudlet() = {
+  def addReceiveTasks(dest: NetworkCloudlet, cloudlet: NetworkCloudlet) = {
 
   }
 
-  def createNetwork() = {
+  def createNetworkTopology() = {
 
   }
 }
