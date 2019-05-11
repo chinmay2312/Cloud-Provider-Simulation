@@ -27,12 +27,12 @@ object Generator {
   var cloudletCount: Int = 0
 
   def generateHostList(countOfHost: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): List[Host] = {
-    for (_ <- List.range(1, countOfHost))
+    for (_ <- List.range(1, countOfHost+1))
       yield createHost(ram, bw, storage, pes, mips, vmScheduler)
   }
 
   implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int) = {
-    for (_ <- List.range(1, countOfVm))
+    for (_ <- List.range(1, countOfVm+1))
       yield createVM(Region.getRandomRegion(), getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
 
   }
@@ -48,7 +48,7 @@ object Generator {
   }
 
   def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int) = {
-    for (_ <- List.range(1, countOfCloudlets))
+    for (_ <- List.range(1, countOfCloudlets+1))
       yield createCloudlet(Region.getRandomRegion(), pes, ram, fileSize, length, outputFileSize)
   }
 
@@ -64,7 +64,7 @@ object Generator {
   }
 
   def createPes(pes: Int, mips: Int): List[Pe] = {
-    for (_ <- List.range(1, pes))
+    for (_ <- List.range(1, pes+1))
       yield new PeSimple(mips, new PeProvisionerSimple)
   }
 
@@ -75,7 +75,7 @@ object Generator {
                                 pes: Int, mips: Int,
                                 vmScheduler: VmScheduler): Datacenter = {
     new RegionalDatacenter(region, simulation,
-      (for (_ <- List.range(1, hostCount)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
+      (for (_ <- List.range(1, hostCount+1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
       vmAllocationPolicy)
     //TODO new Datacenter.setSchedulingInterval(2)
   }
@@ -95,12 +95,13 @@ object Generator {
   implicit def createVM(region: Region, id: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, cloudletScheduler: CloudletScheduler) = {
     val vm: RegionalVm = new RegionalVm(id, mips, pes, region)
     vm.setRam(ram)
-      .setBw(bw)
-      .setSize(storage)
-      .setCloudletScheduler(cloudletScheduler)
+    vm.setBw(bw)
+    vm.setSize(storage)
+    vm.setCloudletScheduler(cloudletScheduler)
+    vm
   }
 
-  implicit def createCloudlet(region: Region, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int): NetworkCloudlet = {
+  implicit def createCloudlet(region: Region, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int): RegionalCloudlet = {
     val cloudlet = new RegionalCloudlet(length, pes, getCloudletCount(), region)
     cloudlet.setMemory(ram)
     cloudlet.setFileSize(fileSize)

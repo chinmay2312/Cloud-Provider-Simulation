@@ -1,7 +1,10 @@
 package com.uic.cs441.project
 import cloudsimplus.extension.broker.{CloudletToVmMappingRegionFit, RegionalDatacenterBroker}
+import cloudsimplus.extension.cloudlet.RegionalCloudlet
+import cloudsimplus.extension.vm.RegionalVm
 import com.typesafe.scalalogging.Logger
 import com.uic.cs441.project.config.ConfigDataCenter
+import com.uic.cs441.project.regions.Region.Region
 import config.ConfigReader._
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.core.CloudSim
@@ -34,11 +37,11 @@ object MainApp {
 
     logger.info("Setting policy for mapping cloudlets to VMs")
 
-    broker.setVmMapper(Function[Cloudlet, Vm])
+//    broker.setVmMapper(Function[Cloudlet, Vm])
 
     logger.info("Creating virtual machines")
 
-    val vmList : java.util.List[Vm] = createVms()
+    val vmList : java.util.List[RegionalVm] = createVms()
 
     broker.submitVmList(vmList)
 
@@ -46,7 +49,7 @@ object MainApp {
 
     logger.info("Creating cloudlets")
 
-    val cloudletList : java.util.List[NetworkCloudlet] = createCloudlets()
+    val cloudletList : java.util.List[RegionalCloudlet] = createAndAssignVmToCloudlets(vmList.asScala.toList)
 
 //    broker.submitCloudletList(cloudletList)
 
@@ -73,7 +76,7 @@ object MainApp {
     })
   }
 
-  def createVms() : java.util.List[Vm] = {
+  def createVms() : java.util.List[RegionalVm] = {
 
     val vmValues = getVmValues
 
@@ -82,14 +85,20 @@ object MainApp {
 
   }
 
-  def createCloudlets() : java.util.List[NetworkCloudlet] = {
+  def createAndAssignVmToCloudlets(vmList:List[RegionalVm]) : java.util.List[RegionalCloudlet] = {
 
     val cloudletValues = getCloudletValues
 
     val taskValues = getTaskValues
 
-    val cloudlets : List[NetworkCloudlet] = generateCloudlets(cloudletValues.countOfCloudlets, cloudletValues.pes, cloudletValues.ram,
+    val regionToVmMap:Map[Region,List[RegionalVm]] = vmList.groupBy(_.getRegion())
+
+    val cloudlets : List[RegionalCloudlet] = generateCloudlets(cloudletValues.countOfCloudlets, cloudletValues.pes, cloudletValues.ram,
       cloudletValues.fileSize, cloudletValues.length, cloudletValues.outputFileSize)
+
+    val regionToCloudletMap:Map[Region,List[RegionalCloudlet]]=cloudlets.groupBy(_.getRegion())
+
+    //TODO assign VM to each cloudlet then call the tasks
 
     createTasksForCloudlets(cloudlets, taskValues.noOfTasks, taskValues.noOfTasks,
       taskValues.packetDataLengthInBytes, taskValues.taskLength, taskValues.taskRam)
