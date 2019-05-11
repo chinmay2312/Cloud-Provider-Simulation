@@ -5,10 +5,9 @@ import java.util
 import cloudsimplus.extension.broker.RegionalDatacenterBroker
 import cloudsimplus.extension.cloudlet.RegionalCloudlet
 import cloudsimplus.extension.vm.RegionalVm
-import com.uic.cs441.project.config.{CloudletValues, ConfigReader, TaskValues}
-import com.uic.cs441.project.config.ConfigReader.{getCloudletValues, getTaskValues}
+import com.uic.cs441.project.config.CloudletValues
+import com.uic.cs441.project.config.ConfigReader.getCloudletValues
 import com.uic.cs441.project.generator.Generator.generateCloudlets
-import com.uic.cs441.project.regions.Region.Region
 import org.cloudbus.cloudsim.cloudlets.Cloudlet
 import org.cloudbus.cloudsim.cloudlets.Cloudlet.Status
 import org.cloudbus.cloudsim.core.CloudSim
@@ -42,7 +41,10 @@ class AppTest extends FlatSpec  {
   val cloudletSubmittedList: List[Cloudlet] = broker.getCloudletCreatedList.toList
 
   val cloudletCount:Int = getCloudletValues.countOfCloudlets
+  //System.out.println(cloudletCount)
 
-  assert(cloudletSubmittedList(cloudletCount-1).getStatus == Status.INEXEC)
+  "MainApp" should "have all cloudlets in execution" in {
+    assert(cloudletSubmittedList(cloudletCount - 1).getStatus == Status.INEXEC)
+  }
 
 }
