@@ -15,6 +15,7 @@ import org.cloudbus.cloudsim.core.CloudSim
 import org.scalatest.FlatSpec
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 class AppTest extends FlatSpec  {
 
@@ -37,11 +38,11 @@ class AppTest extends FlatSpec  {
   broker.submitCloudletList(cloudlets)
 
   sim.start()
-  sim.abort()
+  //sim.abort()
+  val cloudletSubmittedList: List[Cloudlet] = broker.getCloudletCreatedList.toList
 
-  val cloudletSubmittedList: List[Cloudlet] = broker.getCloudletSubmittedList.asScala.toList
+  val cloudletCount:Int = getCloudletValues.countOfCloudlets
 
-  assert(cloudletSubmittedList(0).getStatus == Status.INEXEC)
-
+  assert(cloudletSubmittedList(cloudletCount-1).getStatus == Status.INEXEC)
 
 }
