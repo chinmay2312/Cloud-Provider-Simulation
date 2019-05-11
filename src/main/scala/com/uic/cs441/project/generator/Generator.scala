@@ -74,11 +74,11 @@ object Generator {
                                 storage: Long,
                                 pes: Int, mips: Int,
                                 vmScheduler: VmScheduler): Datacenter = {
-    val dc:RegionalDatacenter=new RegionalDatacenter(region, simulation,
+    val dc: RegionalDatacenter = new RegionalDatacenter(region, simulation,
       (for (_ <- List.range(1, hostCount + 1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
       vmAllocationPolicy)
     //TODO new Datacenter.setSchedulingInterval(2)
-    createDataCenterNetwork(simulation.asInstanceOf[CloudSim],dc)
+    createDataCenterNetwork(simulation.asInstanceOf[CloudSim], dc)
     dc
   }
 
@@ -119,8 +119,8 @@ object Generator {
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
       if (i < (cloudletsSize / 2)) {
         addExecutionTasks(cloudlet, i, taskLength, taskRam)
-                addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1), taskRam, numOfPackets, packetDataLengthInBytes)
-                addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet, taskRam, numOfPackets)
+        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1), taskRam, numOfPackets, packetDataLengthInBytes)
+        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet, taskRam, numOfPackets)
         addExecutionTasks(networkCloudlets(cloudletsSize - i - 1), i, taskLength, taskRam)
       }
     }
