@@ -43,12 +43,12 @@ class BasicFirstExample() {
   //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
   val simulation: CloudSim = new CloudSim
-  val datacenter0 = createDatacenter
+  val datacenter0: DatacenterSimple = createDatacenter
 
   //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
   val broker0: DatacenterBroker = new DatacenterBrokerSimple(simulation)
-  val vmList = createVms
-  val cloudletList = createCloudlets
+  val vmList: util.ArrayList[Vm] = createVms
+  val cloudletList: util.ArrayList[Cloudlet] = createCloudlets
   broker0.submitVmList(vmList)
   broker0.submitCloudletList(cloudletList)
   simulation.start
@@ -64,8 +64,7 @@ class BasicFirstExample() {
     val hostList = new util.ArrayList[Host](BasicFirstExample.HOSTS)
 
     for( i <- 0 until BasicFirstExample.HOSTS) {
-      val host = createHost
-      hostList.add(host)
+      hostList.add(createHost)
     }
 
     //Uses a VmAllocationPolicySimple by default to allocate VMs
