@@ -25,14 +25,15 @@ import scala.collection.JavaConverters._
 object Generator {
   var vmIdCount: Int = 0
   var cloudletCount: Int = 0
+  var taskCountId=0
 
   def generateHostList(countOfHost: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): List[Host] = {
-    for (_ <- List.range(1, countOfHost+1))
+    for (_ <- List.range(1, countOfHost + 1))
       yield createHost(ram, bw, storage, pes, mips, vmScheduler)
   }
 
   implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int) = {
-    for (_ <- List.range(1, countOfVm+1))
+    for (_ <- List.range(1, countOfVm + 1))
       yield createVM(Region.getRandomRegion(), getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
 
   }
@@ -47,8 +48,12 @@ object Generator {
     cloudletCount
   }
 
+  def getTaskCount(): Int = {
+    taskCountId += 1
+    taskCountId
+  }
   def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int) = {
-    for (_ <- List.range(1, countOfCloudlets+1))
+    for (_ <- List.range(1, countOfCloudlets + 1))
       yield createCloudlet(Region.getRandomRegion(), pes, ram, fileSize, length, outputFileSize)
   }
 
@@ -64,7 +69,7 @@ object Generator {
   }
 
   def createPes(pes: Int, mips: Int): List[Pe] = {
-    for (_ <- List.range(1, pes+1))
+    for (_ <- List.range(1, pes + 1))
       yield new PeSimple(mips, new PeProvisionerSimple)
   }
 
@@ -74,10 +79,12 @@ object Generator {
                                 storage: Long,
                                 pes: Int, mips: Int,
                                 vmScheduler: VmScheduler): Datacenter = {
-    new RegionalDatacenter(region, simulation,
-      (for (_ <- List.range(1, hostCount+1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
+    val dc: RegionalDatacenter = new RegionalDatacenter(region, simulation,
+      (for (_ <- List.range(1, hostCount + 1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
       vmAllocationPolicy)
-    //TODO new Datacenter.setSchedulingInterval(2)
+//     dc.setSchedulingInterval(50)
+    createDataCenterNetwork(simulation.asInstanceOf[CloudSim], dc)
+    dc
   }
 
   implicit def createDataCenterNetwork(simulation: CloudSim, datacenter: NetworkDatacenter) = {
@@ -102,7 +109,7 @@ object Generator {
   }
 
   implicit def createCloudlet(region: Region, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int): RegionalCloudlet = {
-    val cloudlet = new RegionalCloudlet(length, pes, getCloudletCount(), region)
+    val cloudlet = new RegionalCloudlet(getCloudletCount(), length, pes, region)
     cloudlet.setMemory(ram)
     cloudlet.setFileSize(fileSize)
     cloudlet.setOutputSize(outputFileSize)
@@ -132,15 +139,15 @@ object Generator {
   }
 
   def addSendTasks(src: NetworkCloudlet, dest: NetworkCloudlet, taskRam: Int, numOfPackets: Int, packetDataLengthInBytes: Int) = {
-    val task: CloudletSendTask = new CloudletSendTask(src.getTasks.size())
+    val task: CloudletSendTask = new CloudletSendTask(getTaskCount())
     task.setMemory(taskRam)
     src.addTask(task)
-    for (_ <- List.range(1, numOfPackets))
+    for (_ <- List.range(1, numOfPackets+1))
       yield task.addPacket(dest, packetDataLengthInBytes)
   }
 
   def addReceiveTasks(dest: NetworkCloudlet, cloudlet: NetworkCloudlet, taskRam: Int, numOfPackets: Int) = {
-    val task: CloudletReceiveTask = new CloudletReceiveTask(cloudlet.getTasks().size(), cloudlet.getVm())
+    val task: CloudletReceiveTask = new CloudletReceiveTask(getTaskCount(), cloudlet.getVm())
     task.setMemory(taskRam)
     task.setExpectedPacketsToReceive(numOfPackets)
     dest.addTask(task)
