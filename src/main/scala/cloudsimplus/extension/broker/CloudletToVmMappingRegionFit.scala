@@ -5,8 +5,7 @@ import cloudsimplus.extension.vm.RegionalVm
 
 import scala.collection.JavaConversions._
 
-class CloudletToVmMappingRegionFit {
-
+object CloudletToVmMappingRegionFit {
   def regionFitCloudletToVmMapper(cloudlet: RegionalCloudlet): RegionalVm = {
 
     val vmList:List[RegionalVm] = cloudlet.getBroker.getVmCreatedList.toList
@@ -16,6 +15,10 @@ class CloudletToVmMappingRegionFit {
       .filter(vm => vm.reg == cloudlet.reg)
       .filter(vm => vm.getNumberOfPes>=cloudlet.getNumberOfPes)
       .minBy(vm => vm.getNumberOfPes)
+
+    //TODO: handle exception if no eligible VM available
   }
+
+
 
 }

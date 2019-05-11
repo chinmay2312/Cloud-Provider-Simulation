@@ -1,5 +1,5 @@
 package com.uic.cs441.project
-import cloudsimplus.extension.broker.RegionalDatacenterBroker
+import cloudsimplus.extension.broker.{CloudletToVmMappingRegionFit, RegionalDatacenterBroker}
 import com.typesafe.scalalogging.Logger
 import com.uic.cs441.project.config.ConfigDataCenter
 import config.ConfigReader._
@@ -31,6 +31,10 @@ object MainApp {
     logger.info("Creating broker")
 
     val broker:DatacenterBrokerSimple = new RegionalDatacenterBroker(cloudsim)
+
+    logger.info("Setting policy for mapping cloudlets to VMs")
+
+    broker.setVmMapper(Function[Cloudlet, Vm])
 
     logger.info("Creating virtual machines")
 
