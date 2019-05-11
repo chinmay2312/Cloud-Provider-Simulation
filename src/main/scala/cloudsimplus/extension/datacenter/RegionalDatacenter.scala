@@ -16,7 +16,7 @@ class RegionalDatacenter(
                           vmAllocationPolicy:VmAllocationPolicy)
   extends NetworkDatacenter(simulation, hostList, vmAllocationPolicy){
 
-  val reg = region
+  val reg: Region = region
   println("You selected "+region)
 }
 
