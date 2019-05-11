@@ -5,6 +5,7 @@ import java.util.Comparator
 import java.util.Comparator.{comparingDouble, comparingLong}
 import java.util.function.Function
 
+import cloudsimplus.extension.policies.VMAllocationPolicyPercentagePes
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
 import com.uic.cs441.project.regions.Region
@@ -37,6 +38,7 @@ object ConfigReader {
       case "VmAllocationPolicyBestFit" => new VmAllocationPolicyBestFit
       case "VmAllocationPolicyFirstFit" => new VmAllocationPolicyFirstFit
       case "VmAllocationPolicySimple" => new VmAllocationPolicySimple
+      case "VMAllocationPolicyPercentagePes" => new VMAllocationPolicyPercentagePes
       case _ => new VmAllocationPolicySimple
 
     }
