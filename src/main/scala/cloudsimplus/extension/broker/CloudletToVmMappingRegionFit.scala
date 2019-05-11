@@ -19,6 +19,4 @@ object CloudletToVmMappingRegionFit {
     //TODO: handle exception if no eligible VM available
   }
 
-
-
 }
