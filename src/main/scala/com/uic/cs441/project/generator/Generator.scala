@@ -27,12 +27,12 @@ object Generator {
   var cloudletCount: Int = 0
 
   def generateHostList(countOfHost: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int, vmScheduler: VmScheduler): List[Host] = {
-    for (_ <- List.range(1, countOfHost+1))
+    for (_ <- List.range(1, countOfHost + 1))
       yield createHost(ram, bw, storage, pes, mips, vmScheduler)
   }
 
   implicit def generateVmList(countOfVm: Int, ram: Int, bw: Long, storage: Long, pes: Int, mips: Int) = {
-    for (_ <- List.range(1, countOfVm+1))
+    for (_ <- List.range(1, countOfVm + 1))
       yield createVM(Region.getRandomRegion(), getVmIdCount(), ram, bw, storage, pes, mips, getCloudletSchedulerPolicy)
 
   }
@@ -48,7 +48,7 @@ object Generator {
   }
 
   def generateCloudlets(countOfCloudlets: Int, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int) = {
-    for (_ <- List.range(1, countOfCloudlets+1))
+    for (_ <- List.range(1, countOfCloudlets + 1))
       yield createCloudlet(Region.getRandomRegion(), pes, ram, fileSize, length, outputFileSize)
   }
 
@@ -64,7 +64,7 @@ object Generator {
   }
 
   def createPes(pes: Int, mips: Int): List[Pe] = {
-    for (_ <- List.range(1, pes+1))
+    for (_ <- List.range(1, pes + 1))
       yield new PeSimple(mips, new PeProvisionerSimple)
   }
 
@@ -75,7 +75,7 @@ object Generator {
                                 pes: Int, mips: Int,
                                 vmScheduler: VmScheduler): Datacenter = {
     new RegionalDatacenter(region, simulation,
-      (for (_ <- List.range(1, hostCount+1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
+      (for (_ <- List.range(1, hostCount + 1)) yield createHost(ram, bw, storage, pes, mips, vmScheduler)).asJava,
       vmAllocationPolicy)
     //TODO new Datacenter.setSchedulingInterval(2)
   }
@@ -102,7 +102,7 @@ object Generator {
   }
 
   implicit def createCloudlet(region: Region, pes: Int, ram: Int, fileSize: Int, length: Int, outputFileSize: Int): RegionalCloudlet = {
-    val cloudlet = new RegionalCloudlet(length, pes, getCloudletCount(), region)
+    val cloudlet = new RegionalCloudlet(getCloudletCount(), length, pes, region)
     cloudlet.setMemory(ram)
     cloudlet.setFileSize(fileSize)
     cloudlet.setOutputSize(outputFileSize)
@@ -117,8 +117,8 @@ object Generator {
     networkCloudlets.zipWithIndex.foreach { case (cloudlet, i) => {
       if (i < (cloudletsSize / 2)) {
         addExecutionTasks(cloudlet, i, taskLength, taskRam)
-        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1), taskRam, numOfPackets, packetDataLengthInBytes)
-        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet, taskRam, numOfPackets)
+        //        addSendTasks(cloudlet, networkCloudlets(cloudletsSize - i - 1), taskRam, numOfPackets, packetDataLengthInBytes)
+        //        addReceiveTasks(networkCloudlets(cloudletsSize - i - 1), cloudlet, taskRam, numOfPackets)
         addExecutionTasks(networkCloudlets(cloudletsSize - i - 1), i, taskLength, taskRam)
       }
     }

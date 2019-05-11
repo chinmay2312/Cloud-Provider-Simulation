@@ -10,6 +10,7 @@ import com.uic.cs441.project.regions.Region.Region
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.datacenters.Datacenter
+import org.cloudsimplus.builders.tables.CloudletsTableBuilder
 
 import scala.collection.JavaConverters._
 import scala.util.Random
@@ -54,6 +55,7 @@ object MainApp {
 
     cloudsim.start()
 
+    printCloudletsResult(broker.getCloudletFinishedList())
 
 
   }
@@ -116,6 +118,10 @@ object MainApp {
 
   def getRandomVm(maxCount:Int):Int = {
     Random.nextInt(maxCount)
+  }
+
+  def printCloudletsResult(cloudlets:java.util.List[RegionalCloudlet])={
+    new CloudletsTableBuilder(cloudlets).build()
   }
 
 
