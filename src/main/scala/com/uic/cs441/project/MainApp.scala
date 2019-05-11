@@ -35,10 +35,6 @@ object MainApp {
 
     val broker:DatacenterBrokerSimple = new RegionalDatacenterBroker(cloudsim)
 
-    logger.info("Setting policy for mapping cloudlets to VMs")
-
-//    broker.setVmMapper(Function[Cloudlet, Vm])
-
     logger.info("Creating virtual machines")
 
     val vmList : java.util.List[RegionalVm] = createVms()
