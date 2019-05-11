@@ -1,6 +1,8 @@
 package com.uic.cs441.project
 
 import java.util
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 import cloudsimplus.extension.broker.RegionalDatacenterBroker
 import cloudsimplus.extension.cloudlet.RegionalCloudlet
@@ -11,10 +13,8 @@ import com.uic.cs441.project.generator.Generator.generateCloudlets
 import org.cloudbus.cloudsim.cloudlets.Cloudlet
 import org.cloudbus.cloudsim.cloudlets.Cloudlet.Status
 import org.cloudbus.cloudsim.core.CloudSim
+import org.cloudbus.cloudsim.vms.Vm
 import org.scalatest.FlatSpec
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
 
 class AppTest extends FlatSpec  {
 
