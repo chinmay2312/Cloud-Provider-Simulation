@@ -8,8 +8,10 @@ import com.uic.cs441.project.config.ConfigReader._
 import com.uic.cs441.project.generator.Generator._
 import com.uic.cs441.project.regions.Region.Region
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
+import org.cloudbus.cloudsim.cloudlets.Cloudlet
 import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.datacenters.Datacenter
+import org.cloudbus.cloudsim.vms.Vm
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder
 
 import scala.collection.JavaConverters._
@@ -97,23 +99,47 @@ object MainApp {
 
     val regionToCloudletMap:Map[Region,List[RegionalCloudlet]]=cloudlets.groupBy(_.getRegion())
 
+    var onlyAssignedCloudlets:List[RegionalCloudlet] = List()
+
+
+
     regionToCloudletMap.foreach {
       case (region: Region, cloudletList: List[RegionalCloudlet]) =>{
+
         cloudletList.foreach(cloudlet => {
-          regionToVmMap.get(cloudlet.getRegion()).foreach(list =>
-            cloudlet.setVm(list(getRandomVm(list.size))))
+
+          regionToVmMap.get(cloudlet.getRegion())
+            .foreach(list => {
+
+              cloudlet.setVm(getVmToCloudletMappingPolicy(cloudlet)(cloudlet,
+              vmList.asJava))
+
+              if(cloudlet.getStatus != Cloudlet.Status.FAILED){
+                onlyAssignedCloudlets = onlyAssignedCloudlets :+ cloudlet
+              }
+
+            })
         })
       }
     }
-//
 
 
     //TODO assign VM to each cloudlet then call the tasks
 
-    createTasksForCloudlets(cloudlets, taskValues.noOfTasks, taskValues.noOfTasks,
+    if(onlyAssignedCloudlets.length % 2 != 0){
+      // dropping one cloudlet to ensure even number of cloudlets
+      onlyAssignedCloudlets = onlyAssignedCloudlets.dropRight(1)
+    }
+
+    if(onlyAssignedCloudlets.length == 0){
+      logger.error("Cloudlets could not be assigned to any VM")
+      System.exit(1)
+    }
+
+    createTasksForCloudlets(onlyAssignedCloudlets, taskValues.noOfTasks, taskValues.noOfTasks,
       taskValues.packetDataLengthInBytes, taskValues.taskLength, taskValues.taskRam)
 
-    cloudlets.asJava
+    onlyAssignedCloudlets.asJava
   }
 
   def getRandomVm(maxCount:Int):Int = {

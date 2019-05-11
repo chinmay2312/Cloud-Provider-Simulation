@@ -3,8 +3,10 @@ package com.uic.cs441.project.config
 import java.util
 import java.util.Comparator
 import java.util.Comparator.{comparingDouble, comparingLong}
-import java.util.function.Function
+import java.util.function.{BiFunction, Function}
 
+import cloudsimplus.extension.cloudlet.RegionalCloudlet
+import cloudsimplus.extension.vm.RegionalVm
 import cloudsimplus.extension.policies.VMAllocationPolicyPercentagePes
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
@@ -16,6 +18,7 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.{CloudletScheduler, CloudletSch
 import org.cloudbus.cloudsim.schedulers.vm.{VmScheduler, VmSchedulerSpaceShared, VmSchedulerTimeShared, VmSchedulerTimeSharedOverSubscription}
 import org.cloudbus.cloudsim.utilizationmodels._
 import org.cloudbus.cloudsim.vms.Vm
+import cloudsimplus.extension.policies.CloudletToVmMappingPolicies._
 
 import scala.collection.JavaConverters._
 
@@ -44,44 +47,17 @@ object ConfigReader {
     }
   }
 
-  implicit def getVmToCloudletMappingPolicy(cloudlet: Cloudlet): Function[Cloudlet, Vm] = {
+  implicit def getVmToCloudletMappingPolicy(cloudlet: Cloudlet):
+  BiFunction[RegionalCloudlet, java.util.List[RegionalVm], Vm] = {
 
-    config.getString("policies.vmToCloudletMapping") match {
+    config.getString("policies.cloudletToVmMappingPolicy") match {
 
-      case "CloudletToVmMappingTimeMinimizedMapping" => cloudletToVmMappingTimeMinimized
+      case "CloudletToVmMappingTimeMinimized" => cloudletToVmMapperTimeMinimized
+      case "CloudletToVmMappingRegionFit" => cloudletToVmMapperRegionFit
+      case _ => cloudletToVmMapperTimeMinimized
     }
   }
 
-  implicit def getExpectedCloudletCompletionTime(cloudlet: Cloudlet, vm: Vm): Double
-  = cloudlet.getLength / vm.getMips
-
-  implicit def getExpectedNumberOfFreeVmPes(vm: Vm): Long = {
-    val totalPesForCloudletsOfVm = vm.getBroker.getCloudletCreatedList
-      .stream.filter(c => c.getVm == vm).mapToLong(c => c.getNumberOfPes).sum
-
-    val numberOfVmFreePes = vm.getNumberOfPes - totalPesForCloudletsOfVm
-
-    numberOfVmFreePes
-  }
-
-  implicit def cloudletToVmMappingTimeMinimized(cloudlet: Cloudlet): Vm = {
-
-    val execVms: util.List[Vm] = cloudlet.getBroker.getVmExecList.asInstanceOf[util.List[Vm]]
-
-    val sortByFreePesNumber: Comparator[Vm] = comparingLong(getExpectedNumberOfFreeVmPes)
-
-    val sortByExpectedCloudletCompletionTime: Comparator[Vm] =
-      comparingDouble((vm: Vm) => getExpectedCloudletCompletionTime(cloudlet, vm))
-
-    execVms.sort(sortByExpectedCloudletCompletionTime.thenComparing(
-      sortByFreePesNumber.reversed))
-
-    val mostFreePesVm: Vm = execVms.stream.findFirst.orElse(Vm.NULL)
-
-    execVms.stream.filter((vm: Vm) => getExpectedNumberOfFreeVmPes(vm) >= cloudlet.getNumberOfPes)
-      .findFirst.orElse(mostFreePesVm)
-
-  }
 
   implicit def getCloudletSchedulerPolicyString = config.getString("policies.cloudletSchedulerPolicy")
 
