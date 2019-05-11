@@ -56,7 +56,7 @@ object Generator {
   }
 
   def createPes(pes: Int, mips: Int): List[Pe] = {
-    for (_ <- List.range(1, pes))
+    for (_ <- List.range(1, pes+1))
       yield new PeSimple(mips, new PeProvisionerSimple)
   }
 

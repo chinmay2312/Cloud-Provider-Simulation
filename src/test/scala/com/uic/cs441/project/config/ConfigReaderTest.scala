@@ -1,9 +1,9 @@
 package com.uic.cs441.project.config
+import com.uic.cs441.project.config.ConfigReader._
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple
 import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic
 import org.cloudbus.cloudsim.vms.{Vm, VmSimple}
 import org.scalatest.FlatSpec
-import com.uic.cs441.project.config.ConfigReader._
 
 class ConfigReaderTest extends FlatSpec {
 

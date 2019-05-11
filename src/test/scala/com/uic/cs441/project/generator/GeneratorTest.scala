@@ -1,7 +1,8 @@
 package com.uic.cs441.project.generator
+
 import com.uic.cs441.project.MainApp.createVms
-import com.uic.cs441.project.config.ConfigReader.{getVMAllocationPolicy, getVmScheduler, _}
-import com.uic.cs441.project.generator.Generator._
+import com.uic.cs441.project.config.ConfigReader.{getHostValues, getVMAllocationPolicy, getVmScheduler}
+import com.uic.cs441.project.generator.Generator.{createCloudlet, createDataCenter, createPes, createVM}
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple
 import org.cloudbus.cloudsim.cloudlets.Cloudlet
 import org.cloudbus.cloudsim.core.CloudSim
@@ -11,12 +12,12 @@ import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerTimeShared
 import org.cloudbus.cloudsim.vms.Vm
 import org.scalatest.FlatSpec
 
+class GeneratorTest extends FlatSpec{
 
-class GeneratorTest extends FlatSpec {
-
-  "createPes" should "return a list of size 4" in {
-    val x: List[Pe] = createPes(4, 1000)
-    assert(x.size == 4)
+  "createPes" should "return a list of size 3" in {
+    val peCount =3
+    val peList: List[Pe] = createPes(peCount, 1000)
+    assert(peList.length == peCount)
   }
 
   "createDataCenter" should "return a Datacenter tyoe" in {
