@@ -29,10 +29,22 @@ This project can be setup on your local device by either of the following ways:
     * `AppTest`: Integration test
 
 ##Steps to run
-* Launch terminal & navigate project root level
-* The input configuration can be customised in the file `application.conf`
-* Run the command `sbt "runMain com.uic.cs441.project.MainApp"`
-* The output would be presented in the terminal itself, as a summary table for each input cloudlet
+
+You may choose to run the project either online or offline
+
+* Online: Through BitBucket portal
+    * Go to `Commits` section
+    * Choose the latest commit
+    * Click `Run pipeline`
+    * Choose a pipeline: 
+        * `default` builds the project and runs Unit & Integration tests
+        * `run_main` runs `MainApp` which is the Main class for this project
+    * Hit `Run`
+* Offline: By downloading the project (Refer to [Setting up](#markdown-header-setting-up))
+    * Launch terminal & navigate project root level
+    * The input configuration can be customised in the file `application.conf`
+    * Run the command `sbt "runMain com.uic.cs441.project.MainApp"`
+    * The output would be presented in the terminal itself, as a summary table for each input cloudlet
 
 ##How to download the docker image
 
@@ -48,9 +60,9 @@ sbt docker: publish
 docker-compose up
    
 How to run using global docker image
-a. Install docker
-b. docker pull adarsh23/regionalcloudsim:latest
-c. docker run adarsh23/regionalcloudsim
+1. Install docker
+2. docker pull adarsh23/regionalcloudsim:latest
+3. docker run adarsh23/regionalcloudsim
 
 The above command will execute the app
 
