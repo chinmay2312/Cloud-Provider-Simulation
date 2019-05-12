@@ -3,14 +3,16 @@ image: bitbucketpipelines/scala-sbt:scala-2.12
 pipelines:
   default:
     - step:
+        name: Initial Build
         script:
           - sbt clean compile
-  custom:
-    integration_test:
     - step:
-        script: # Modify the commands below to build your repository.
+        name: Tests
+        script:
           - sbt test
+  custom:
     run_main:
     - step:
+        name: Run MainApp
         script:
           - sbt "runMain com.uic.cs441.project.MainApp"
