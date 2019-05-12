@@ -54,7 +54,7 @@ The above command will execute the app
 
 
 ##Diagram of the network topology
-
+![Topology](images/topology.jpeg)
 
 ##Authors
 * Adarsh Hegde
