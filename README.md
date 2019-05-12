@@ -27,7 +27,10 @@ This project can be setup on your local device by either of the following ways:
     * `AppTest`: Integration test
 
 ##Steps to run
-
+* Launch terminal & navigate project root level
+* The input configuration can be customised in the file `application.conf`
+* Run the command `sbt "runMain com.uic.cs441.project.MainApp"`
+* The output would be presented in the terminal itself, as a summary table for each input cloudlet
 
 ##How to download the docker image
 
