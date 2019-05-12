@@ -1,6 +1,6 @@
 #Creating and evaluating Cloud Provider simulations
 
-View the [Report](docs/Report.pdf)
+View the [Report](Report.pdf)
 
 ##Prerequisites
 * Scala `2.12.8`
