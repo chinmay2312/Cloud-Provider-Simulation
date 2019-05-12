@@ -5,6 +5,11 @@ import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic
 import org.cloudbus.cloudsim.vms.{Vm, VmSimple}
 import org.scalatest.FlatSpec
 
+/**
+  * Unit tests for ConfigReader
+  *
+  * @author Karan Kadakia
+  */
 class ConfigReaderTest extends FlatSpec {
 
   private val vm = new VmSimple(1000, 4)

@@ -8,7 +8,11 @@ import org.cloudbus.cloudsim.vms.Vm
 
 import scala.collection.JavaConverters._
 
-class VMAllocationPolicyPercentagePes extends VmAllocationPolicyAbstract {
+/**
+  * Policy for allocating VM to Host
+  */
+class VMAllocationPolicyPercentagePes
+  extends VmAllocationPolicyAbstract {
 
   override def defaultFindHostForVm(vm: Vm): Optional[Host] = {
 

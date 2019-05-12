@@ -16,8 +16,11 @@ import org.cloudbus.cloudsim.core.CloudSim
 import org.cloudbus.cloudsim.vms.{Vm, VmCost}
 import org.scalatest.FlatSpec
 
-import scala.collection.mutable
-
+/**
+  * Integration test for the project
+  *
+  * @author Chinmay Gangal
+  */
 class AppTest extends FlatSpec  {
 
   val sim:CloudSim = new CloudSim()
@@ -40,21 +43,12 @@ class AppTest extends FlatSpec  {
 
   sim.start()
   //sim.abort()
-  val cloudletSubmittedList: List[Cloudlet] = broker.getCloudletCreatedList.toList
+  val cloudletSubmittedList: List[Cloudlet] = broker.getCloudletSubmittedList.toList
 
   val cloudletCount:Int = getCloudletValues.countOfCloudlets
-  //System.out.println(cloudletCount)
-
-  val myvmlist: List[Vm] = broker.getVmCreatedList.toList
-  var sum:Double =0
-  for(i <- 0 until myvmlist.length) {
-    sum = sum + new VmCost(myvmlist(i)).getTotalCost
-  }
-  println("Cost = "+sum)
-  //val vmCost = new VmCost(myvmlist(0))
-  //println(vmCost.getTotalCost)
 
   "MainApp" should "have all cloudlets in execution" in {
+    //CloudSimPlus does not update Cloudlet status from INEXEC to SUCCESS
     assert(cloudletSubmittedList(cloudletCount - 1).getStatus == Status.INEXEC)
   }
 

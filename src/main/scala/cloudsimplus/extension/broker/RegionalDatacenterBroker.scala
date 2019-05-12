@@ -13,16 +13,28 @@ import org.cloudbus.cloudsim.hosts.Host
 
 import scala.collection.JavaConversions._
 
+/**
+  * Extension of DatacenterBrokerSimple from cloudsim package
+  *
+  * @author Chinmay gangal
+  * @param simulation CloudSim instance
+  */
 class RegionalDatacenterBroker(simulation: CloudSim)
   extends DatacenterBrokerSimple(simulation:CloudSim) {
 
+  /**
+    * @param region The Region to filter Datacenters by
+    * @return list of datacenters filtered by region
+    */
   def getAllDCbyRegion(region: Region): List[Datacenter] = {
     getDatacenterList.toList.filter(dc => dc.asInstanceOf[RegionalDatacenter].reg==region)
   }
 
-  def getDCList(): List[Datacenter] = {
-    getDatacenterList.toList
-  }
+  /**
+    * Objective: Make broker's list of datacenters publicly accessible
+    * @return list of all datacenters
+    */
+  def getDCList: List[Datacenter] = {    getDatacenterList.toList  }
 
 }
 

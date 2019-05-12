@@ -53,7 +53,7 @@ object ConfigReader {
     config.getString("policies.cloudletToVmMappingPolicy") match {
 
       case "CloudletToVmMappingTimeMinimized" => cloudletToVmMapperTimeMinimized
-      case "CloudletToVmMappingRegionFit" => cloudletToVmMapperRegionFit
+      case "CloudletToVmMappingRegionFit" => cloudletToVmMapperPEsMinimized
       case _ => cloudletToVmMapperTimeMinimized
     }
   }

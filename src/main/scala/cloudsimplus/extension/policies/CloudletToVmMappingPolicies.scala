@@ -10,8 +10,19 @@ import org.cloudbus.cloudsim.vms.Vm
 
 import scala.collection.JavaConverters._
 
+/**
+  * Collection of policies for mapping Cloudlets to VMs
+  * @author Adarsh Hegde
+  */
 object CloudletToVmMappingPolicies {
 
+  /**
+    * Minimizes time required to execute cloudlet
+    *
+    * @param cloudlet The Cloudlet to be mapped
+    * @param execVms The list of available VMs to which Cloudlet can be mapped
+    * @return Chosen Vm for given Cloudlet
+    */
   implicit def cloudletToVmMapperTimeMinimized(cloudlet: RegionalCloudlet, execVms : java.util.List[RegionalVm]): Vm = {
 
     val sortByFreePesNumber = (vmList : List[RegionalVm]) => vmList
@@ -46,8 +57,16 @@ object CloudletToVmMappingPolicies {
 
   }
 
-  // TODO : Changes name of Policy
-  implicit def cloudletToVmMapperRegionFit(cloudlet: RegionalCloudlet, execVms : java.util.List[RegionalVm]): Vm = {
+  /**
+    * Minimizes PEs occupied by choosing VM with just-enough- PEs
+    * Filters VMs on same Region as Cloudlet
+    *
+    * @author Chinmay Gangal
+    * @param cloudlet The Cloudlet to be mapped
+    * @param execVms The list of available VMs to which Cloudlet can be mapped
+    * @return Chosen Vm for given Cloudlet
+    */
+  implicit def cloudletToVmMapperPEsMinimized(cloudlet: RegionalCloudlet, execVms : java.util.List[RegionalVm]): Vm = {
 
     val sortedVms = execVms
       .asScala
@@ -69,7 +88,6 @@ object CloudletToVmMappingPolicies {
         bestFilteredVm
       }
     }
-
 
     //TODO: handle exception if no eligible VM available
   }

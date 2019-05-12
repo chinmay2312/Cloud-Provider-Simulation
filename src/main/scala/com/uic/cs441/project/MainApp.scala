@@ -17,6 +17,10 @@ import org.cloudsimplus.builders.tables.CloudletsTableBuilder
 import scala.collection.JavaConverters._
 import scala.util.Random
 
+/**
+  * Main class of the project
+  *
+  */
 object MainApp {
 
   val logger = Logger("MainApp")
