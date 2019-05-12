@@ -15,6 +15,11 @@ import org.cloudbus.cloudsim.schedulers.vm.VmScheduler
 import org.cloudbus.cloudsim.vms.Vm
 import org.scalatest.FlatSpec
 
+/**
+  * Unit tests for Generator
+  *
+  * @author Karan Kadakia
+  */
 class GeneratorTest extends FlatSpec{
 
   "createPes" should "return a list of size 3" in {

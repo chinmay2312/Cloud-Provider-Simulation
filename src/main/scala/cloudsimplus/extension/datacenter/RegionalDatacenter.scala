@@ -9,6 +9,14 @@ import java.util
 import com.uic.cs441.project.regions.Region
 import com.uic.cs441.project.regions.Region.Region
 
+/**
+  * Extends NetworkDatacenter with Region property
+  * @author Chinmay Gangal
+  * @param region Region to which datacenter belongs
+  * @param simulation Cloudsim instance
+  * @param hostList List of hosts associated to this datacenter
+  * @param vmAllocationPolicy Policy for allocating VMs in this datacenter
+  */
 class RegionalDatacenter(
                           region:Region,
                           simulation:Simulation,
@@ -17,7 +25,7 @@ class RegionalDatacenter(
   extends NetworkDatacenter(simulation, hostList, vmAllocationPolicy){
 
   val reg: Region = region
-  println("You selected "+region)
+  //println("You selected "+region)
 }
 
 object RegionalDatacenter {
