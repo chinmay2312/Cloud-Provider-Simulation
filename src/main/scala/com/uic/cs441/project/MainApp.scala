@@ -148,3 +148,5 @@ object MainApp {
 
 
 }
+
+class MainApp{}
