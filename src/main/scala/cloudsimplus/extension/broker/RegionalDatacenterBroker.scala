@@ -20,6 +20,10 @@ class RegionalDatacenterBroker(simulation: CloudSim)
     getDatacenterList.toList.filter(dc => dc.asInstanceOf[RegionalDatacenter].reg==region)
   }
 
+  def getDCList(): List[Datacenter] = {
+    getDatacenterList.toList
+  }
+
 }
 
 object RegionalDatacenterBroker {
@@ -39,6 +43,7 @@ object RegionalDatacenterBroker {
     val rdc4:RegionalDatacenter = new RegionalDatacenter(Region.withName("Region1"), sim, new util.ArrayList[Host](), new VmAllocationPolicySimple())
     sim.start()
     println("Datacenters in Region1: "+broker.getAllDCbyRegion(Region.REGION1))
+    //println(broker.getAllDC())
 
   }
 }
