@@ -17,7 +17,7 @@ mainClass in (Compile) := Some("com.uic.cs441.project.MainApp")
 
 packageName in Docker := "regionalcloudsim"
 
-version in Docker := "1.0.0"
+version in Docker := "1.2.0"
 
 dockerBaseImage := "moneyfarm/scala-sbt"
 
