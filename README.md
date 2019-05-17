@@ -1,20 +1,20 @@
-#Creating and evaluating Cloud Provider simulations
+# Creating and evaluating Cloud Provider simulations
 
 View the [Report](Report.pdf)
 
-##Prerequisites
+## Prerequisites
 * Scala `2.12.8`
 * SBT
 * Docker
 
-##Setting up
+## Setting up
 This project can be setup on your local device by either of the following ways:
 
 * Import project as SBT project
 * Clone this git repo using:
     `git clone https://chinmay2312@bitbucket.org/chinmay2312/chinmay_gangal_project.git`
 
-##Project structure
+## Project structure
 * Code
     * Resources
         This contains the configuration files
@@ -29,7 +29,7 @@ This project can be setup on your local device by either of the following ways:
 * Tests: Contains tests for various modules from source code
     * `AppTest`: Integration test
 
-##Steps to run
+## Steps to run
 
 You may choose to run the project either online or offline
 
@@ -47,7 +47,7 @@ You may choose to run the project either online or offline
     * Run the command `sbt "runMain com.uic.cs441.project.MainApp"`
     * The output would be presented in the terminal itself, as a summary table for each input cloudlet
 
-##How to download the docker image
+## How to download the docker image
 
 Docker commands to build image and container
 
@@ -68,10 +68,10 @@ How to run using global docker image
 The above command will execute the app
 
 
-##Diagram of the network topology
+## Diagram of the network topology
 ![Topology](images/topology.jpeg)
 
-##Authors
+## Authors
 * Adarsh Hegde
 * Amrish Jhaveri
 * Chinmay Gangal
